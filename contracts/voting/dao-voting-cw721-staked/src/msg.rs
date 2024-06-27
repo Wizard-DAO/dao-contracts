@@ -94,7 +94,10 @@ pub enum QueryMsg {
     ActiveThreshold {},
 
     #[returns(SnapshotResponse)]
-    Snapshot {},
+    Snapshot {
+        start_after: Option<String>,
+        limit: Option<u32>,
+    },
 }
 
 #[cw_serde]

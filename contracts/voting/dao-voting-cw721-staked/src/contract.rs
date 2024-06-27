@@ -1,3 +1,5 @@
+use std::marker::PhantomData;
+
 #[cfg(not(feature = "library"))]
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
@@ -496,16 +498,36 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::VotingPowerAtHeight { address, height } => {
             query_voting_power_at_height(deps, env, address, height)
         }
-        QueryMsg::Snapshot {} => query_snapshot(deps),
+        QueryMsg::Snapshot { start_after, limit } => query_snapshot(deps, start_after, limit),
     }
 }
 
-pub fn query_snapshot(deps: Deps) -> StdResult<Binary> {
-    let all: StdResult<Vec<_>> = NFT_BALANCES
-        .range(deps.storage, None, None, Order::Ascending)
-        .collect();
+pub fn query_snapshot(
+    deps: Deps,
+    start_after: Option<String>,
+    limit: Option<u32>,
+) -> StdResult<Binary> {
+    let all = match start_after {
+        Some(addr) => {
+            let address = &deps.api.addr_validate(&addr)?;
+            NFT_BALANCES.range(
+                deps.storage,
+                Some(Bound::Exclusive((address, PhantomData))),
+                None,
+                Order::Ascending,
+            )
+        }
+        None => NFT_BALANCES.range(deps.storage, None, None, Order::Ascending),
+    };
 
-    to_json_binary(&SnapshotResponse { snapshot: all? })
+    let snapshot: StdResult<Vec<_>> = match limit {
+        Some(limit) => all.take(limit as usize).collect(),
+        None => all.collect(),
+    };
+
+    to_json_binary(&SnapshotResponse {
+        snapshot: snapshot?,
+    })
 }
 
 pub fn query_active_threshold(deps: Deps) -> StdResult<Binary> {
