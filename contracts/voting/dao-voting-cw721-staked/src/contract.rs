@@ -2,7 +2,7 @@
 use cosmwasm_std::entry_point;
 use cosmwasm_std::{
     from_json, to_json_binary, Addr, Binary, CosmosMsg, Deps, DepsMut, Empty, Env, MessageInfo,
-    Reply, Response, StdError, StdResult, SubMsg, Uint128, Uint256, WasmMsg,
+    Order, Reply, Response, StdError, StdResult, SubMsg, Uint128, Uint256, WasmMsg,
 };
 use cw2::{get_contract_version, set_contract_version, ContractVersion};
 use cw721::{Cw721QueryMsg, Cw721ReceiveMsg, NumTokensResponse};
@@ -17,7 +17,7 @@ use dao_voting::threshold::{
     ActiveThresholdResponse,
 };
 
-use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, NftContract, QueryMsg};
+use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, NftContract, QueryMsg, SnapshotResponse};
 use crate::state::{
     register_staked_nft, register_unstaked_nfts, Config, ACTIVE_THRESHOLD, CONFIG, DAO, HOOKS,
     INITIAL_NFTS, MAX_CLAIMS, NFT_BALANCES, NFT_CLAIMS, STAKED_NFTS_PER_OWNER, TOTAL_STAKED_NFTS,
@@ -496,7 +496,16 @@ pub fn query(deps: Deps, env: Env, msg: QueryMsg) -> StdResult<Binary> {
         QueryMsg::VotingPowerAtHeight { address, height } => {
             query_voting_power_at_height(deps, env, address, height)
         }
+        QueryMsg::Snapshot {} => query_snapshot(deps),
     }
+}
+
+pub fn query_snapshot(deps: Deps) -> StdResult<Binary> {
+    let all: StdResult<Vec<_>> = NFT_BALANCES
+        .range(deps.storage, None, None, Order::Ascending)
+        .collect();
+
+    to_json_binary(&SnapshotResponse { snapshot: all? })
 }
 
 pub fn query_active_threshold(deps: Deps) -> StdResult<Binary> {

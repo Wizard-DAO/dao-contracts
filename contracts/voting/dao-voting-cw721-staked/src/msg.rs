@@ -1,5 +1,5 @@
 use cosmwasm_schema::{cw_serde, QueryResponses};
-use cosmwasm_std::Binary;
+use cosmwasm_std::{Addr, Binary, Uint128};
 use cw721::Cw721ReceiveMsg;
 use cw_utils::Duration;
 use dao_dao_macros::{active_query, voting_module_query};
@@ -92,6 +92,14 @@ pub enum QueryMsg {
     },
     #[returns(ActiveThresholdResponse)]
     ActiveThreshold {},
+
+    #[returns(SnapshotResponse)]
+    Snapshot {},
+}
+
+#[cw_serde]
+pub struct SnapshotResponse {
+    pub snapshot: Vec<(Addr, Uint128)>,
 }
 
 #[cw_serde]
