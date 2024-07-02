@@ -507,6 +507,8 @@ pub fn query_snapshot(
     start_after: Option<String>,
     limit: Option<u32>,
 ) -> StdResult<Binary> {
+    let limit = limit.unwrap_or(u32::MAX) as usize;
+
     let all = match start_after {
         Some(addr) => {
             let address = &deps.api.addr_validate(&addr)?;
@@ -520,10 +522,7 @@ pub fn query_snapshot(
         None => NFT_BALANCES.range(deps.storage, None, None, Order::Ascending),
     };
 
-    let snapshot: StdResult<Vec<_>> = match limit {
-        Some(limit) => all.take(limit as usize).collect(),
-        None => all.collect(),
-    };
+    let snapshot: StdResult<Vec<_>> = all.take(limit).collect();
 
     to_json_binary(&SnapshotResponse {
         snapshot: snapshot?,
