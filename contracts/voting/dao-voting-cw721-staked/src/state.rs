@@ -21,6 +21,9 @@ pub const DAO: Item<Addr> = Item::new("dao");
 // Holds initial NFTs messages during instantiation.
 pub const INITIAL_NFTS: Item<Vec<Binary>> = Item::new("initial_nfts");
 
+// Holds a list of token IDs that are not eligible for staking.
+pub const BLACKLIST: Item<Vec<String>> = Item::new("blacklist");
+
 /// The set of NFTs currently staked by each address. The existence of
 /// an `(address, token_id)` pair implies that `address` has staked
 /// `token_id`.

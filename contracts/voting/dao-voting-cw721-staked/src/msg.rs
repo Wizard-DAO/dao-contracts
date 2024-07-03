@@ -42,6 +42,8 @@ pub struct InstantiateMsg {
     /// The number or percentage of tokens that must be staked
     /// for the DAO to be active
     pub active_threshold: Option<ActiveThreshold>,
+    /// The initial list of token IDs which are blacklisted from staking.
+    pub blacklist: Option<Vec<String>>,
 }
 
 #[cw_serde]
@@ -70,6 +72,9 @@ pub enum ExecuteMsg {
     UpdateActiveThreshold {
         new_threshold: Option<ActiveThreshold>,
     },
+    /// Replaces the current token blacklist with a new one. Any tokens on this
+    /// list will be ineligible to send tokens to this contract.
+    SetBlacklist { token_ids: Vec<String> },
 }
 
 #[active_query]

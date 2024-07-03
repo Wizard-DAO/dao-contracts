@@ -21,8 +21,9 @@ use dao_voting::threshold::{
 
 use crate::msg::{ExecuteMsg, InstantiateMsg, MigrateMsg, NftContract, QueryMsg, SnapshotResponse};
 use crate::state::{
-    register_staked_nft, register_unstaked_nfts, Config, ACTIVE_THRESHOLD, CONFIG, DAO, HOOKS,
-    INITIAL_NFTS, MAX_CLAIMS, NFT_BALANCES, NFT_CLAIMS, STAKED_NFTS_PER_OWNER, TOTAL_STAKED_NFTS,
+    register_staked_nft, register_unstaked_nfts, Config, ACTIVE_THRESHOLD, BLACKLIST, CONFIG, DAO,
+    HOOKS, INITIAL_NFTS, MAX_CLAIMS, NFT_BALANCES, NFT_CLAIMS, STAKED_NFTS_PER_OWNER,
+    TOTAL_STAKED_NFTS,
 };
 use crate::ContractError;
 
@@ -104,6 +105,10 @@ pub fn instantiate(
             }
         }
         ACTIVE_THRESHOLD.save(deps.storage, active_threshold)?;
+    }
+
+    if let Some(blacklist) = msg.blacklist {
+        BLACKLIST.save(deps.storage, &blacklist)?;
     }
 
     TOTAL_STAKED_NFTS.save(deps.storage, &Uint128::zero(), env.block.height)?;
@@ -213,7 +218,25 @@ pub fn execute(
         ExecuteMsg::UpdateActiveThreshold { new_threshold } => {
             execute_update_active_threshold(deps, env, info, new_threshold)
         }
+        ExecuteMsg::SetBlacklist { token_ids } => execute_set_blacklist(deps, env, info, token_ids),
     }
+}
+
+pub fn execute_set_blacklist(
+    deps: DepsMut,
+    _env: Env,
+    info: MessageInfo,
+    token_ids: Vec<String>,
+) -> Result<Response, ContractError> {
+    let dao = DAO.load(deps.storage)?;
+
+    if info.sender != dao {
+        return Err(ContractError::Unauthorized {});
+    }
+
+    BLACKLIST.save(deps.storage, &token_ids)?;
+
+    Ok(Response::default().add_attribute("action", "set_blacklist"))
 }
 
 pub fn execute_stake(
@@ -229,6 +252,12 @@ pub fn execute_stake(
             expected: config.nft_address,
         });
     }
+
+    let blacklist = BLACKLIST.load(deps.storage)?;
+    if blacklist.contains(&wrapper.token_id) {
+        return Err(ContractError::Unauthorized {});
+    }
+
     let staker = deps.api.addr_validate(&wrapper.sender)?;
     register_staked_nft(deps.storage, env.block.height, &staker, &wrapper.token_id)?;
     let hook_msgs = stake_nft_hook_msgs(
