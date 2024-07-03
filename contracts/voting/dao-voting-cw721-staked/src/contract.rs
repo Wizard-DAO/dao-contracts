@@ -108,7 +108,9 @@ pub fn instantiate(
     }
 
     if let Some(blacklist) = msg.blacklist {
-        BLACKLIST.save(deps.storage, &blacklist)?;
+        for token_id in blacklist {
+            BLACKLIST.save(deps.storage, &token_id, &true)?;
+        }
     }
 
     TOTAL_STAKED_NFTS.save(deps.storage, &Uint128::zero(), env.block.height)?;
@@ -234,7 +236,11 @@ pub fn execute_set_blacklist(
         return Err(ContractError::Unauthorized {});
     }
 
-    BLACKLIST.save(deps.storage, &token_ids)?;
+    BLACKLIST.clear(deps.storage);
+
+    for token_id in token_ids {
+        BLACKLIST.save(deps.storage, &token_id, &true)?;
+    }
 
     Ok(Response::default().add_attribute("action", "set_blacklist"))
 }
@@ -253,8 +259,7 @@ pub fn execute_stake(
         });
     }
 
-    let blacklist = BLACKLIST.load(deps.storage)?;
-    if blacklist.contains(&wrapper.token_id) {
+    if BLACKLIST.has(deps.storage, &wrapper.token_id) {
         return Err(ContractError::Unauthorized {});
     }
 

@@ -59,6 +59,7 @@ fn test_instantiate_with_new_cw721_collection() -> anyhow::Result<()> {
                 },
                 unstaking_duration: None,
                 active_threshold: None,
+                blacklist: None,
             },
             &[],
             "cw721_voting",
@@ -445,6 +446,7 @@ fn test_instantiate_with_invalid_duration_fails() {
                 },
                 unstaking_duration: None,
                 active_threshold: None,
+                blacklist: None,
             },
             &[],
             "cw721_voting",
@@ -489,6 +491,7 @@ fn test_instantiate_zero_active_threshold_count() {
             active_threshold: Some(ActiveThreshold::AbsoluteCount {
                 count: Uint128::zero(),
             }),
+            blacklist: None,
         },
         &[],
         "cw721_voting",
@@ -529,6 +532,7 @@ fn test_instantiate_invalid_active_threshold_count_new_nft() {
             active_threshold: Some(ActiveThreshold::AbsoluteCount {
                 count: Uint128::new(100),
             }),
+            blacklist: None,
         },
         &[],
         "cw721_voting",
@@ -555,6 +559,7 @@ fn test_instantiate_invalid_active_threshold_count_existing_nft() {
             active_threshold: Some(ActiveThreshold::AbsoluteCount {
                 count: Uint128::new(100),
             }),
+            blacklist: None,
         },
         &[],
         "cw721_voting",
@@ -611,6 +616,7 @@ fn test_active_threshold_absolute_count() {
                 active_threshold: Some(ActiveThreshold::AbsoluteCount {
                     count: Uint128::new(3),
                 }),
+                blacklist: None,
             },
             &[],
             "cw721_voting",
@@ -675,6 +681,7 @@ fn test_active_threshold_percent() {
                 active_threshold: Some(ActiveThreshold::Percentage {
                     percent: Decimal::percent(20),
                 }),
+                blacklist: None,
             },
             &[],
             "cw721_voting",
@@ -766,6 +773,7 @@ fn test_active_threshold_percent_rounds_up() {
                 active_threshold: Some(ActiveThreshold::Percentage {
                     percent: Decimal::percent(50),
                 }),
+                blacklist: None,
             },
             &[],
             "cw721_voting",
@@ -836,6 +844,7 @@ fn test_update_active_threshold() {
                 },
                 unstaking_duration: None,
                 active_threshold: None,
+                blacklist: None,
             },
             &[],
             "cw721_voting",
@@ -914,6 +923,7 @@ fn test_active_threshold_percentage_gt_100() {
             active_threshold: Some(ActiveThreshold::Percentage {
                 percent: Decimal::percent(120),
             }),
+            blacklist: None,
         },
         &[],
         "cw721_voting",
@@ -956,6 +966,7 @@ fn test_active_threshold_percentage_lte_0() {
             active_threshold: Some(ActiveThreshold::Percentage {
                 percent: Decimal::percent(0),
             }),
+            blacklist: None,
         },
         &[],
         "cw721_voting",
@@ -991,6 +1002,7 @@ fn test_invalid_instantiate_msg() {
                 active_threshold: Some(ActiveThreshold::AbsoluteCount {
                     count: Uint128::new(1),
                 }),
+                blacklist: None,
             },
             &[],
             "cw721_voting",
@@ -1030,6 +1042,7 @@ fn test_invalid_initial_nft_msg() {
                 },
                 unstaking_duration: None,
                 active_threshold: None,
+                blacklist: None,
             },
             &[],
             "cw721_voting",
@@ -1080,6 +1093,7 @@ fn test_invalid_initial_nft_msg_wrong_absolute_count() {
                 active_threshold: Some(ActiveThreshold::AbsoluteCount {
                     count: Uint128::new(2),
                 }),
+                blacklist: None,
             },
             &[],
             "cw721_voting",
@@ -1118,6 +1132,7 @@ fn test_no_initial_nfts_fails() {
                 active_threshold: Some(ActiveThreshold::Percentage {
                     percent: Decimal::percent(1),
                 }),
+                blacklist: None,
             },
             &[],
             "cw721_voting",
@@ -1175,6 +1190,7 @@ fn test_factory() {
             active_threshold: Some(ActiveThreshold::Percentage {
                 percent: Decimal::percent(1),
             }),
+            blacklist: None,
         },
         &[],
         "cw721_voting",
@@ -1248,6 +1264,7 @@ fn test_factory_with_funds_pass_through() {
             active_threshold: Some(ActiveThreshold::Percentage {
                 percent: Decimal::percent(1),
             }),
+            blacklist: None,
         },
         &[],
         "cw721_voting",
@@ -1295,6 +1312,7 @@ fn test_factory_with_funds_pass_through() {
             active_threshold: Some(ActiveThreshold::Percentage {
                 percent: Decimal::percent(1),
             }),
+            blacklist: None,
         },
         &funds,
         "cw721_voting",
@@ -1338,6 +1356,7 @@ fn test_unsupported_factory_msg() {
             active_threshold: Some(ActiveThreshold::Percentage {
                 percent: Decimal::percent(1),
             }),
+            blacklist: None,
         },
         &[],
         "cw721_voting",
@@ -1388,6 +1407,7 @@ fn test_factory_wrong_callback() {
             active_threshold: Some(ActiveThreshold::Percentage {
                 percent: Decimal::percent(1),
             }),
+            blacklist: None,
         },
         &[],
         "cw721_voting",
@@ -1436,6 +1456,7 @@ fn test_factory_no_callback() {
             active_threshold: Some(ActiveThreshold::Percentage {
                 percent: Decimal::percent(1),
             }),
+            blacklist: None,
         },
         &[],
         "cw721_voting",

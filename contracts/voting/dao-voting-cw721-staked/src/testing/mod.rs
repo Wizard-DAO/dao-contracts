@@ -48,6 +48,7 @@ pub(crate) fn setup_test(unstaking_duration: Option<Duration>) -> CommonTest {
                 },
                 unstaking_duration,
                 active_threshold: None,
+                blacklist: None,
             },
             &[],
             "cw721_voting",
