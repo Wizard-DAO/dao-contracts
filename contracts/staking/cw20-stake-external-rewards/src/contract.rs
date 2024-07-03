@@ -45,9 +45,9 @@ pub fn instantiate(
     };
 
     // Verify contract provided is a staking contract
-    let _: cw20_stake::msg::TotalStakedAtHeightResponse = deps.querier.query_wasm_smart(
+    let _: dao_interface::voting::TotalPowerAtHeightResponse = deps.querier.query_wasm_smart(
         &msg.staking_contract,
-        &cw20_stake::msg::QueryMsg::TotalStakedAtHeight { height: None },
+        &dao_interface::voting::Query::TotalPowerAtHeight { height: None },
     )?;
 
     let config = Config {
@@ -365,20 +365,20 @@ fn get_last_time_reward_applicable(deps: Deps, env: &Env) -> StdResult<u64> {
 }
 
 fn get_total_staked(deps: Deps, contract_addr: &Addr) -> StdResult<Uint128> {
-    let msg = cw20_stake::msg::QueryMsg::TotalStakedAtHeight { height: None };
-    let resp: cw20_stake::msg::TotalStakedAtHeightResponse =
+    let msg = dao_interface::voting::Query::TotalPowerAtHeight { height: None };
+    let resp: dao_interface::voting::TotalPowerAtHeightResponse =
         deps.querier.query_wasm_smart(contract_addr, &msg)?;
-    Ok(resp.total)
+    Ok(resp.power)
 }
 
 fn get_staked_balance(deps: Deps, contract_addr: &Addr, addr: &Addr) -> StdResult<Uint128> {
-    let msg = cw20_stake::msg::QueryMsg::StakedBalanceAtHeight {
+    let msg = dao_interface::voting::Query::VotingPowerAtHeight {
         address: addr.into(),
         height: None,
     };
-    let resp: cw20_stake::msg::StakedBalanceAtHeightResponse =
+    let resp: dao_interface::voting::VotingPowerAtHeightResponse =
         deps.querier.query_wasm_smart(contract_addr, &msg)?;
-    Ok(resp.balance)
+    Ok(resp.power)
 }
 
 pub fn execute_update_reward_duration(
